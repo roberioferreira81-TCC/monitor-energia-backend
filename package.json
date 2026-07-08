@@ -1,0 +1,20 @@
+{
+  "name": "monitor-energia-backend",
+  "version": "1.0.0",
+  "description": "Backend para receber leituras do ESP32 e calcular gasto mensal em R$",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
