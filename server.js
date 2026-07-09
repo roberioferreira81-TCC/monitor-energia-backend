@@ -27,7 +27,7 @@ const poolConfig = {
 if (process.env.DB_SSL === 'true') {
   poolConfig.ssl = process.env.DB_SSL_CA
     ? { ca: require('fs').readFileSync(process.env.DB_SSL_CA) }
-    : { rejectUnauthorized: true };
+    : { rejectUnauthorized: false };
 }
 
 const pool = mysql.createPool(poolConfig);
