@@ -51,6 +51,7 @@ app.post('/api/leituras', async (req, res) => {
       tensao_r, tensao_s, tensao_t,
       corrente_r, corrente_s, corrente_t,
       potencia_aparente,
+      potencia_ativa
       energia_kwh,
     } = req.body;
 
