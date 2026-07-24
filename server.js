@@ -150,6 +150,54 @@ app.get('/api/consumo/mensal', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao calcular consumo mensal.' });
   }
 });
+//------------------------------------------------------
+//GET /api/consumo/ciclos_faturamentos?ano=2026&mes=7&dispositivo_id=esp32_tcc
+// Soma a energia (kWh) do mês e calcula o valor em R$.
+//------------------------------------------------------
+app.get('/api/consumo/ciclo', async (req, res) => {
+  try {
+    const dispositivo_id = req.query.dispositivo_id || 'esp32_tcc';
+
+    // PASSO 1 — Buscar a data de início do ciclo em aberto
+    const [cicloRows] = await pool.query(
+      `SELECT data_leitura_atual
+       FROM ciclo_faturamentos
+       WHERE data_proxima_leitura is null;`   // <-- preencha aqui (você já escreveu isso no DBeaver!)
+    );
+
+    if (cicloRows.length === 0) {
+      return res.status(404).json({ erro: 'Nenhum ciclo em aberto cadastrado.' });
+    }
+
+    const dataInicio = cicloRows[0].data_leitura_atual;
+
+    // PASSO 2 — Somar energia_kwh a partir dessa data
+    const [leiturasRows] = await pool.query(
+      `SELECT COALESCE(SUM(energia_kwh), 0) AS kwh_total
+       FROM leituras
+       WHERE dispositivo_id = ?
+         AND timestamp >= ?`,
+      [dispositivo_id, dataInicio]
+    );
+
+    const kwhTotal = Number(leiturasRows[0].kwh_total);
+
+    // PASSO 3 — Buscar a tarifa vigente e calcular o valor
+    const tarifa = await buscarTarifaVigente();
+    const valorReais = kwhTotal * tarifa;
+
+    res.json({
+      dispositivo_id,
+      data_inicio_ciclo: dataInicio,
+      kwh_total: Number(kwhTotal.toFixed(4)),
+      tarifa_kwh: tarifa,
+      valor_reais: Number(valorReais.toFixed(2)),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: 'Erro ao calcular consumo do ciclo.' });
+  }
+});
 
 // ------------------------------------------------------------
 // GET /api/leituras/ultimas?limite=20
