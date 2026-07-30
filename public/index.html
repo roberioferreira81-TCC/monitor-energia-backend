@@ -100,7 +100,7 @@
   async function atualizar() {
     try {
       const [consumo, ultimas] = await Promise.all([
-        fetch(`${API_BASE}/api/consumo`).then(r => r.json()),
+        fetch(`${API_BASE}/api/consumo/ciclo`).then(r => r.json()),
         fetch(`${API_BASE}/api/leituras/ultimas?limite=1`).then(r => r.json()),
       ]);
 
