@@ -44,4 +44,4 @@ CREATE TABLE IF NOT EXISTS tarifas (
 
 -- Exemplo: cadastre a tarifa atual da sua concessionária
 INSERT INTO tarifas (valor_kwh, vigencia_inicio, vigencia_fim, observacao)
-VALUES (0.95, '2026-01-01', NULL, 'Tarifa residencial - ajuste conforme sua fatura de luz');
+VALUES (2.00, '2026-01-01', NULL, 'Tarifa residencial - ajuste conforme sua fatura de luz');
