@@ -20,6 +20,7 @@ const poolConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  Timezone: 'z',
   waitForConnections: true,
   connectionLimit: 10,
 };
