@@ -167,7 +167,12 @@ app.get('/api/consumo/ciclo', async (req, res) => {
       leitura_kwh_atual,
       (leitura_kwh_atual - leitura_kwh_anterior) AS consumo_ciclo      
        FROM ciclo_faturamentos
-       WHERE data_proxima_leitura is null;`
+       WHERE data_leitura_atual <= CURDATE()
+       AND ( 
+       data_proxima_leitura IS NULL OR CURDATE() < data_proxima_leitura
+       )
+       ORDER BY data_leitura_atual DESC
+       LIMIT 1 ;`
     );
 
     if (cicloRows.length === 0) {
