@@ -190,6 +190,8 @@ app.get('/api/consumo/ciclo', async (req, res) => {
     );
 
     const kwhTotal = Number(leiturasRows[0].kwh_total);
+    // Leitura acumulada atual do medidor
+const leituraAtualCalculada = leituraAnterior + kwhTotal;
 
     // PASSO 3 — Buscar a tarifa vigente e calcular o valor
     const tarifa = await buscarTarifaVigente();
@@ -202,7 +204,7 @@ app.get('/api/consumo/ciclo', async (req, res) => {
       tarifa_kwh: tarifa,
       valor_reais: Number(valorReais.toFixed(2)),
       leitura_kwh_anterio: leituraAnterior,
-      leitura_kwh_atual: leituraAtual,
+      leitura_kwh_atual: Number(leituraAtualCalculada.toFixed(3)),
       consumo_ciclo : Number(consumoCiclo.toFixed(3)),     
       
     });
