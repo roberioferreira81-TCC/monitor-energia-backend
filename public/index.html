@@ -111,8 +111,7 @@
       const [consumo, ultimas] = await Promise.all([
         fetch(`${API_BASE}/api/consumo/ciclo`).then(r => r.json()),
         fetch(`${API_BASE}/api/leituras/ultimas?limite=1`).then(r => r.json()),
-      ]);
-
+    ]);
       document.getElementById('valorMensal').textContent =
         'R$ ' + Number(consumo.valor_reais).toFixed(2).replace('.', ',');
       document.getElementById('detalheMensal').textContent =
@@ -122,7 +121,7 @@
         Number(consumo.consumo_ciclo).toFixed(3) + ' kWh';
 
       document.getElementById('leiturasCiclo').textContent =  'Leitura anterior: ' +
-        Number(consumo.leitura_kwh_anterior).toFixed(3) + ' kWh | Leitura atual: ' +
+        Number(consumo.leitura_kwh_atual)-number(consumo.consumo_ciclo)).toFixed(3) + ' kWh | Leitura atual: ' +
         Number(consumo.leitura_kwh_atual).toFixed(3) +  ' kWh';
 
       if (ultimas.length > 0) {
