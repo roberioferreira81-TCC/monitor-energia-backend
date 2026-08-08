@@ -297,8 +297,7 @@ const leituraAtualCalculada = leituraAnterior + kwhTotal;
       valor_reais: Number(valorReais.toFixed(2)),
       leitura_kwh_anterio: leituraAnterior,
       leitura_kwh_atual: Number(leituraAtualCalculada.toFixed(3)),
-      consumo_ciclo : Number(consumoCiclo.toFixed(3)),     
-      
+      consumo_ciclo: Number(kwhTotal.toFixed(3)),
     });
   } catch (err) {
     console.error(err);
