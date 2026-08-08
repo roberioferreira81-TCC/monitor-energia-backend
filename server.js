@@ -162,7 +162,7 @@ async function verificarViradaCiclo(dispositivo_id) {
       leitura_kwh_anterior
    FROM ciclo_faturamentos
    WHERE data_proxima_leitura IS NOT NULL
-     AND data_proxima_leitura <= CURDATE()
+     AND data_proxima_leitura <= NOW()
    ORDER BY data_proxima_leitura ASC
    LIMIT 1`
 );
@@ -172,6 +172,7 @@ async function verificarViradaCiclo(dispositivo_id) {
   const ciclo = ciclos[0];
 
 const dataFechamento = ciclo.data_proxima_leitura;
+  
 // Calcula toda a energia acumulada até o fechamento do ciclo
 const [energiaRows] = await pool.query(
   `SELECT COALESCE(SUM(energia_kwh), 0) AS energia_total
@@ -232,9 +233,8 @@ if (existente.length === 0) {
       leituraFechamento,
       'Ciclo criado automaticamente'
     ]
-  );
-
-}
+    );
+  }
 }
 //------------------------------------------------------
 //GET /api/consumo/ciclos_faturamentos?ano=2026&mes=7&dispositivo_id=esp32_tcc
@@ -254,9 +254,9 @@ app.get('/api/consumo/ciclo', async (req, res) => {
       leitura_kwh_atual,
       (leitura_kwh_atual - leitura_kwh_anterior) AS consumo_ciclo      
        FROM ciclo_faturamentos
-       WHERE data_leitura_atual <= CURDATE()
+       WHERE data_leitura_atual <= NOW()
        AND ( 
-       data_proxima_leitura IS NULL OR CURDATE() < data_proxima_leitura
+       data_proxima_leitura IS NULL OR NOW() < data_proxima_leitura
        )
        ORDER BY data_leitura_atual DESC
        LIMIT 1 ;`
