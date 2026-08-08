@@ -159,10 +159,15 @@ app.get('/api/consumo/ciclo', async (req, res) => {
     const dispositivo_id = req.query.dispositivo_id || 'esp32_tcc';
 
     // PASSO 1 — Buscar a data de início do ciclo em aberto
+    
     const [cicloRows] = await pool.query(
-      `SELECT data_leitura_atual
+      `SELECT 
+      data_leitura_atual,
+      leitura_kwh_anterior,
+      leitura_kwh_atual,
+      (leitura_kwh_atual - leitura_kwh_anterior) AS consumo_ciclo      
        FROM ciclo_faturamentos
-       WHERE data_proxima_leitura is null;`   // <-- preencha aqui (você já escreveu isso no DBeaver!)
+       WHERE data_proxima_leitura is null;`
     );
 
     if (cicloRows.length === 0) {
@@ -170,6 +175,10 @@ app.get('/api/consumo/ciclo', async (req, res) => {
     }
 
     const dataInicio = cicloRows[0].data_leitura_atual;
+    
+    const leituraAnterior = Number(cicloRows[0].leitura_kwh_anterior || 0);
+    const leituraAtual = Number(cicloRows[0].leitura_kwh_atual || 0);
+    const consumoCiclo = Number(cicloRows[0].consumo_ciclo || 0);
 
     // PASSO 2 — Somar energia_kwh a partir dessa data
     const [leiturasRows] = await pool.query(
@@ -192,6 +201,10 @@ app.get('/api/consumo/ciclo', async (req, res) => {
       kwh_total: Number(kwhTotal.toFixed(4)),
       tarifa_kwh: tarifa,
       valor_reais: Number(valorReais.toFixed(2)),
+      leitura_kwh_anterio: leituraAnterior,
+      leitura_kwh_atual: leituraAtual,
+      consumo_ciclo : Number(consumoCiclo.toFixed(3)),     
+      
     });
   } catch (err) {
     console.error(err);
