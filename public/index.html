@@ -117,6 +117,13 @@
         'R$ ' + Number(consumo.valor_reais).toFixed(2).replace('.', ',');
       document.getElementById('detalheMensal').textContent =
         Number(consumo.kwh_total).toFixed(3) + ' kWh consumidos';
+      
+      document.getElementById('consumoCiclo').textContent =
+        Number(consumo.consumo_ciclo).toFixed(3) + ' kWh';
+
+      document.getElementById('leiturasCiclo').textContent =  'Leitura anterior: ' +
+        Number(consumo.leitura_kwh_anterior).toFixed(3) + ' kWh | Leitura atual: ' +
+        Number(consumo.leitura_kwh_atual).toFixed(3) +  ' kWh';
 
       if (ultimas.length > 0) {
         const u = ultimas[0];
