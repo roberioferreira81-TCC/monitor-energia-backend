@@ -122,7 +122,7 @@
         Number(consumo.consumo_ciclo).toFixed(3) + ' kWh';
 
       document.getElementById('leiturasCiclo').textContent =  'Leitura anterior: ' +
-        Number().toFixed(3) + ' kWh | Leitura atual: ' +
+        Number(consumo.leitura_Kwh_anterior).toFixed(3) + ' kWh | Leitura atual: ' +
         Number(consumo.leitura_Kwh_atual).toFixed(3) +  ' kWh';
 
       if (ultimas.length > 0) {
