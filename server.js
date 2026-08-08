@@ -150,6 +150,92 @@ app.get('/api/consumo/mensal', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao calcular consumo mensal.' });
   }
 });
+// ============================================================
+// TROCA AUTOMATICA DO CICLO DE FATURAMENTO
+// ============================================================
+async function verificarViradaCiclo(dispositivo_id) {
+  const [ciclos] = await pool.query(
+  `SELECT
+      id,
+      data_leitura_atual,
+      data_proxima_leitura,
+      leitura_kwh_anterior
+   FROM ciclo_faturamentos
+   WHERE data_proxima_leitura IS NOT NULL
+     AND data_proxima_leitura <= CURDATE()
+   ORDER BY data_proxima_leitura ASC
+   LIMIT 1`
+);
+  if (ciclos.length === 0) {
+  return;
+  }
+  const ciclo = ciclos[0];
+
+const dataFechamento = ciclo.data_proxima_leitura;
+// Calcula toda a energia acumulada até o fechamento do ciclo
+const [energiaRows] = await pool.query(
+  `SELECT COALESCE(SUM(energia_kwh), 0) AS energia_total
+   FROM leituras
+   WHERE dispositivo_id = ?
+     AND timestamp >= ?
+     AND timestamp < ?`,
+  [
+    dispositivo_id,
+    ciclo.data_leitura_atual,
+    dataFechamento
+  ]
+);
+const energiaCiclo = Number(energiaRows[0].energia_total);
+const leituraAnterior = Number(ciclo.leitura_kwh_anterior || 0);
+const leituraFechamento =
+  leituraAnterior + energiaCiclo;
+  await pool.query(
+  `UPDATE ciclo_faturamentos
+   SET leitura_kwh_atual = ?
+   WHERE id = ?`,
+  [
+    leituraFechamento,
+    ciclo.id
+  ]
+);
+  const [existente] = await pool.query(
+  `SELECT id
+   FROM ciclo_faturamentos
+   WHERE data_leitura_atual = ?
+   LIMIT 1`,
+  [dataFechamento]
+);
+
+if (existente.length === 0) {
+
+  await pool.query(
+    `INSERT INTO ciclo_faturamentos
+      (
+        data_leitura_atual,
+        data_proxima_leitura,
+        leitura_kwh_anterior,
+        leitura_kwh_atual,
+        observacao
+      )
+     VALUES
+      (
+        ?,
+        DATE_ADD(?, INTERVAL 1 MONTH),
+        ?,
+        ?,
+        ?
+      )`,
+    [
+      dataFechamento,
+      dataFechamento,
+      leituraFechamento,
+      leituraFechamento,
+      'Ciclo criado automaticamente'
+    ]
+  );
+
+}
+}
 //------------------------------------------------------
 //GET /api/consumo/ciclos_faturamentos?ano=2026&mes=7&dispositivo_id=esp32_tcc
 // Soma a energia (kWh) do mês e calcula o valor em R$.
@@ -157,6 +243,7 @@ app.get('/api/consumo/mensal', async (req, res) => {
 app.get('/api/consumo/ciclo', async (req, res) => {
   try {
     const dispositivo_id = req.query.dispositivo_id || 'esp32_tcc';
+    await verificarViradaCiclo(dispositivo_id);
 
     // PASSO 1 — Buscar a data de início do ciclo em aberto
     
