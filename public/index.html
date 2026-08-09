@@ -71,7 +71,7 @@
   <div class="detalhe">Consumo do ciclo atual</div>
   <div class="valor" id="consumoCiclo">-- kWh</div>
   <div class="detalhe" id="leiturasCiclo">
-    Leitura anterior: -- | Leitura Kwh acumulado : --
+    Leitura anterior: -- | Leitura atual : --
   </div>
 </div>
   
@@ -124,7 +124,7 @@
         (
         Number(consumo.leitura_kwh_atual)-Number(consumo.consumo_ciclo)
         ).toFixed(3) + 
-        ' kWh | Leitura atual: ' +
+        ' kWh | Kwh acumulado : ' +
         Number(consumo.leitura_kwh_atual).toFixed(3) +  ' kWh';
 
       if (ultimas.length > 0) {
