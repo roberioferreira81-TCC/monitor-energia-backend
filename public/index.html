@@ -66,12 +66,15 @@
   <div class="detalhe" id="detalheMensal">-- kWh consumidos</div>
 </div> 
   
-<p class="subtitulo"> Dados em desenvolvimento com medidor novo instalado 23/07 </p>
+<p class="subtitulo"> Histórico de consumo a partir 23/07/26 </p>
 <div class="resumo">
   <div class="detalhe">Consumo do ciclo atual</div>
   <div class="valor" id="consumoCiclo">-- kWh</div>
   <div class="detalhe" id="leiturasCiclo">
     Leitura anterior: -- | Kwh acumulado  : --
+   </div>
+    <div class="detalhe" id="datasCiclo">
+  Data leitura anterior: -- | Próxima leitura: --
   </div>
 </div>
   
@@ -126,6 +129,15 @@
         ).toFixed(3) + 
         ' kWh | Kwh acumulado : ' +
         Number(consumo.leitura_kwh_atual).toFixed(3) +  ' kWh';
+      
+      const dataAnterior = new Date(consumo.data_leitura_atual);
+      const dataProxima = new Date(consumo.data_proxima_leitura);
+
+      document.getElementById('datasCiclo').textContent =
+      'Data leitura anterior: ' +
+        dataAnterior.toLocaleString('pt-BR') +
+        ' | Próxima leitura: ' +
+        dataProxima.toLocaleString('pt-BR');
 
       if (ultimas.length > 0) {
         const u = ultimas[0];
