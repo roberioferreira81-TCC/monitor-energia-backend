@@ -250,6 +250,7 @@ app.get('/api/consumo/ciclo', async (req, res) => {
     const [cicloRows] = await pool.query(
       `SELECT 
       data_leitura_atual,
+      data_proxima_leitura,
       leitura_kwh_anterior,
       leitura_kwh_atual,
       (leitura_kwh_atual - leitura_kwh_anterior) AS consumo_ciclo      
@@ -292,6 +293,8 @@ const leituraAtualCalculada = leituraAnterior + kwhTotal;
     res.json({
       dispositivo_id,
       data_inicio_ciclo: dataInicio,
+      data_leitura_atual: cicloRows[0].data_leitura_atual,
+      data_proxima_leitura: cicloRows[0].data_proxima_leitura,
       kwh_total: Number(kwhTotal.toFixed(4)),
       tarifa_kwh: tarifa,
       valor_reais: Number(valorReais.toFixed(2)),
