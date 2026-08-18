@@ -325,7 +325,49 @@ app.get('/api/leituras/ultimas', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao buscar leituras.' });
   }
 });
+// --------------------------------------------------
+// ALTERAR DATA DA PRÓXIMA LEITURA PELO DASHBOARD
+// --------------------------------------------------
+app.put('/api/ciclo/proxima-leitura', async (req, res) => {
+  try {
+    const { data_proxima_leitura } = req.body;
 
+    if (!data_proxima_leitura) {
+      return res.status(400).json({
+        erro: 'Informe a data da próxima leitura.'
+      });
+    }
+    const [ciclos] = await pool.query(
+      `SELECT id
+       FROM ciclo_faturamentos
+       WHERE data_leitura_atual <= NOW()
+       AND (data_proxima_leitura IS NULL OR NOW() < data_proxima_leitura)
+       ORDER BY data_leitura_atual DESC
+       LIMIT 1`
+    );
+    if (ciclos.length === 0) {
+      return res.status(404).json({
+        erro: 'Nenhum ciclo de faturamento atual encontrado.'
+      });
+    }
+    await pool.query(
+      `UPDATE ciclo_faturamentos
+       SET data_proxima_leitura = ?
+       WHERE id = ?`,
+      [data_proxima_leitura, ciclos[0].id]
+    );
+    res.json({
+      sucesso: true,
+      mensagem: 'Data da próxima leitura atualizada.',
+      data_proxima_leitura
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      erro: 'Erro ao atualizar a próxima leitura.'
+    });
+  }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
