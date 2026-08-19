@@ -139,13 +139,13 @@
         Number(consumo.leitura_kwh_atual).toFixed(3) +  ' kWh';
       
       const dataAnterior = new Date(consumo.data_leitura_atual);
-      const dataProxima = new Date(consumo.data_proxima_leitura);
+const dataProxima = new Date(consumo.data_proxima_leitura);
 
-      document.getElementById('datasCiclo').textContent =
-      'Data leitura anterior: ' +
-        dataAnterior.toLocaleString('pt-BR') +
-        ' | Próxima leitura: ' +
-        dataProxima.toLocaleString('pt-BR');
+document.getElementById('datasCiclo').textContent =
+  'Data leitura anterior: ' +
+  dataAnterior.toLocaleString('pt-BR', { timeZone: 'UTC' }) +
+  ' | Próxima leitura: ' +
+  dataProxima.toLocaleString('pt-BR', { timeZone: 'UTC' });
 
       if (ultimas.length > 0) {
         const u = ultimas[0];
