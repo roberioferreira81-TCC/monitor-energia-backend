@@ -99,6 +99,16 @@
     <p>Potência aparente <span id="potencia">-- VA</span></p>
     <p>Última leitura <span id="timestamp">--</span></p>
   </div>
+  <div class="card">
+  <h2>Próxima Leitura</h2>
+  <p>Data programada:</p>
+  <input type="datetime-local" id="novaDataLeitura">
+  <br><br>
+  <button onclick="alterarProximaLeitura()">
+    Atualizar data
+  </button>
+  <p id="mensagemData"></p>
+  </div>
 </div>
  
 <script>
