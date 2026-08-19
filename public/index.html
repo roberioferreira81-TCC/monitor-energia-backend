@@ -100,7 +100,18 @@
     <p>Última leitura <span id="timestamp">--</span></p>
   </div>
 </div>
-
+ <div class="fases">
+<div class="card">
+  <h2>Próxima Leitura</h2>
+  <p>Data programada:</p>
+  <input type="datetime-local" id="novaDataLeitura">
+  <br><br>
+  <button onclick="alterarProximaLeitura()">
+    Atualizar data
+  </button>
+  <p id="mensagemData"></p>
+    </div>
+ </div>
 <p class="status" id="status">Conectando ao servidor...</p>
 
 <script>
@@ -160,6 +171,43 @@
     }
   }
 
+async function alterarProximaLeitura() {
+  const campo = document.getElementById('novaDataLeitura');
+  const mensagem = document.getElementById('mensagemData');
+  const novaData = campo.value;
+  if (!novaData) {
+    mensagem.textContent = 'Selecione uma data e horário.';
+    return;
+  }
+
+  try {
+    const resposta = await fetch('/api/ciclo/proxima-leitura', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        data_proxima_leitura: novaData
+      })
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      mensagem.textContent = dados.erro || 'Erro ao atualizar a data.';
+      return;
+    }
+
+    mensagem.textContent = 'Data atualizada com sucesso!';
+
+    atualizar();
+
+  } catch (erro) {
+    console.error(erro);
+    mensagem.textContent = 'Erro ao conectar com o servidor.';
+  }
+}
+  
   atualizar();
   setInterval(atualizar, 15000);
 </script>
