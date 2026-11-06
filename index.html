@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoramento de Consumo de Energia Trifásico</title>
+<style>
+  :root {
+    --azul: #1b3a5c;
+    --azul-claro: #eef3f8;
+    --verde: #2f7d4f;
+    --cinza: #6b7280;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 24px;
+    color: #1f2937;
+  }
+  h1 { text-align: center; color: var(--azul); margin-bottom: 4px; }
+  .subtitulo { text-align: center; color: var(--cinza); margin-bottom: 28px; font-size: 14px; }
+
+  .resumo {
+    max-width: 480px;
+    margin: 0 auto 32px auto;
+    background: var(--azul);
+    color: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .resumo .valor { font-size: 40px; font-weight: 700; margin: 4px 0; }
+  .resumo .detalhe { font-size: 13px; opacity: 0.85; }
+
+  .fases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--azul);
+  }
+  .card h2 { margin: 0 0 10px 0; font-size: 16px; color: var(--azul); }
+  .card p { margin: 6px 0; font-size: 14px; }
+  .card p span { float: right; font-weight: 600; }
+
+  .status { text-align: center; margin-top: 24px; font-size: 12px; color: var(--cinza); }
+</style>
+</head>
+<body>
+
+<h1>Monitoramento de Consumo de Energia Trifásico</h1>
+<p class="subtitulo">Dados atualizados automaticamente a cada 15 segundos</p>
+
+<div class="resumo">
+  <div class="detalhe">Gasto estimado neste mês</div>
+  <div class="valor" id="valorMensal">R$ --</div>
+  <div class="detalhe" id="detalheMensal">-- kWh consumidos</div>
+</div>
+
+<div class="fases">
+  <div class="card">
+    <h2>Fase R</h2>
+    <p>Tensão <span id="tensaoR">-- V</span></p>
+    <p>Corrente <span id="correnteR">-- A</span></p>
+  </div>
+  <div class="card">
+    <h2>Fase S</h2>
+    <p>Tensão <span id="tensaoS">-- V</span></p>
+    <p>Corrente <span id="correnteS">-- A</span></p>
+  </div>
+  <div class="card">
+    <h2>Fase T</h2>
+    <p>Tensão <span id="tensaoT">-- V</span></p>
+    <p>Corrente <span id="correnteT">-- A</span></p>
+  </div>
+  <div class="card">
+    <h2>Potência Total</h2>
+    <p>Potência aparente <span id="potencia">-- VA</span></p>
+    <p>Última leitura <span id="timestamp">--</span></p>
+  </div>
+</div>
+
+<p class="status" id="status">Conectando ao servidor...</p>
+
+<script>
+  // Se o dashboard for servido pelo próprio backend (mesma origem),
+  // deixe API_BASE vazio. Se hospedar o dashboard separado do backend,
+  // coloque a URL completa aqui, ex: 'https://seu-backend.up.railway.app'
+  const API_BASE = '';
+
+  async function atualizar() {
+    try {
+      const [consumo, ultimas] = await Promise.all([
+        fetch(`${API_BASE}/api/consumo/mensal`).then(r => r.json()),
+        fetch(`${API_BASE}/api/leituras/ultimas?limite=1`).then(r => r.json()),
+      ]);
+
+      document.getElementById('valorMensal').textContent =
+        'R$ ' + Number(consumo.valor_reais).toFixed(2).replace('.', ',');
+      document.getElementById('detalheMensal').textContent =
+        Number(consumo.kwh_total).toFixed(3) + ' kWh consumidos';
+
+      if (ultimas.length > 0) {
+        const u = ultimas[0];
+        document.getElementById('tensaoR').textContent = Number(u.tensao_r).toFixed(1) + ' V';
+        document.getElementById('tensaoS').textContent = Number(u.tensao_s).toFixed(1) + ' V';
+        document.getElementById('tensaoT').textContent = Number(u.tensao_t).toFixed(1) + ' V';
+        document.getElementById('correnteR').textContent = Number(u.corrente_r).toFixed(3) + ' A';
+        document.getElementById('correnteS').textContent = Number(u.corrente_s).toFixed(3) + ' A';
+        document.getElementById('correnteT').textContent = Number(u.corrente_t).toFixed(3) + ' A';
+        document.getElementById('potencia').textContent = Number(u.potencia_aparente).toFixed(1) + ' VA';
+        document.getElementById('timestamp').textContent = new Date(u.timestamp).toLocaleString('pt-BR');
+      }
+
+      document.getElementById('status').textContent =
+        'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+    } catch (erro) {
+      document.getElementById('status').textContent =
+        'Não foi possível conectar ao servidor. Verifique se o backend está online.';
+      console.error(erro);
+    }
+  }
+
+  atualizar();
+  setInterval(atualizar, 15000);
+</script>
+
+</body>
+</html>
